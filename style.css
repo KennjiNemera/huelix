@@ -1,7 +1,7 @@
 html, body {
   min-height: 100%;
   margin: 0;
-  font-family: 'Segoe UI';
+  font-family: 'Montserrat', sans-serif;
 }
 
 .navbar {
@@ -40,6 +40,14 @@ html, body {
     grid-template-areas: "inner-div";
 }
 
+.containerdisp {
+  margin: 0 auto;
+  display: grid;
+  padding: 0 0 0 0px;
+  place-items: initial;
+  grid-template-areas: "inner-div";
+}
+
 .inner {
   height: 100%;
   width: 100%;
@@ -59,6 +67,17 @@ html, body {
 
 .main {
   margin: auto;
+}
+
+.hexlabel {
+  z-index: 100;
+  position: relative;
+  font-size: 21px;
+  font-family: 'Montserrat', sans-serif;
+  line-height: 150px;
+  text-align: center;
+  text-transform: uppercase;
+  color: black;
 }
 
 #quad {
@@ -92,7 +111,8 @@ html, body {
 }
 
 .minidisplay {
-  width: 200px;
+  width: 100%;
+  min-width: 300px;
   height: 150px;
   border-radius: 20px;
   padding: 10px;
@@ -106,4 +126,29 @@ html, body {
   border-radius: 50%; 
   cursor: pointer;
   border: 3px solid #213122;
+}
+
+.custombtn {
+  width: 90%;
+  margin: auto;
+  display: grid;
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 19px;
+  color: rgb(49, 49, 49);
+  border: 1px solid black;
+  -webkit-transition: font-size .5s ease;
+}
+
+.custombtn:hover {
+  color: rgb(49, 49, 49);
+  font-size: 20px;
+}
+
+#randomizebtn {
+  background: white;
+}
+
+#exportbtn {
+  background: white;
 }

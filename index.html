@@ -23,7 +23,8 @@
   <div class="container-sm simp">
     <div class="row row-cols-1 justify-content-center">
       <div class="container" style="margin-top: 20px;">
-        <div class="inner" style="height: 400px; margin: auto;"><canvas id="quad" width="400" height="400"></canvas></div>
+        <div class="inner" style="height: 400px; margin: auto;"><canvas id="quad" width="400" height="400"></canvas>
+        </div>
         <div class="inner container" id="pointercont">
           <div class="inner2 point">
             <div class="pointer"></div>
@@ -37,8 +38,8 @@
         <input id="slider" class="slider" type="range" min="10" max="100" name="alpha" onmouseup="logslider()">
       </div>
       <div class="col" id="valuemaster">
-        <input class="slider valuecontrol" type="range" min="0" max="100" name="value" onchange="updatedisplay(this.value)"
-          onmousemove="updatedisplay(this.value)">
+        <input class="slider valuecontrol" type="range" min="0" max="100" name="value"
+          onchange="updatedisplay(this.value)" onmousemove="updatedisplay(this.value)">
       </div>
     </div>
 
@@ -54,6 +55,36 @@
 
         </select>
 
+        <div class="row row-cols-2 justify-content-center">
+          <div class="col">
+            <span type="button" class="btn btn-primary custombtn" id="randomizebtn"
+              onclick="random()">Randomize</button>
+          </div>
+          <div class="col">
+            <button type="button" class="btn btn-primary custombtn" id="exportbtn" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="getLinear()">Export</button>
+          </div>
+
+          <!-- Modal -->
+          <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="ModalLabel">🌈 Linear-Gradient Snippet</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  ...
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-primary" onclick="copytoclipboard()">Copy</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="row align-items-center" style="margin-top: 20px;" id="testingsite">
         </div>
       </div>
@@ -64,7 +95,7 @@
     <script>
       let x = document.getElementById('quad');
       x.addEventListener('mousedown', movecursor);
-      x.addEventListener('click', sendcard);
+      x.addEventListener('click', getcord);
       x.addEventListener('mouseup', stopmovement);
     </script>
 

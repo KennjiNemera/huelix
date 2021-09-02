@@ -3,6 +3,7 @@ let radius = 200;
 var red = 0, blue = 0, green = 0;
 var cred = 0, cblue = 0, cgreen = 0;
 let lastx = 0, lasty = 0;
+let px = 0, py = 0;
 
 var colors = [], coord = [];
 
@@ -126,7 +127,7 @@ function getAlpha() {
 function movecursor() {
   let canv = document.getElementById('quad');
   document.body.style.cursor = 'none';
-  canv.addEventListener('mousemove', sendcard);
+  canv.addEventListener('mousemove', getcord);
 }
 
 function stopmovement() {
@@ -136,7 +137,7 @@ function stopmovement() {
   updatedisplay(50);
   document.querySelector('.valuecontrol').value = 50;
 
-  canv.removeEventListener('mousemove', sendcard);
+  canv.removeEventListener('mousemove', getcord);
 }
 
 function updatecontainers() {
@@ -145,19 +146,43 @@ function updatecontainers() {
   var ctx;
   let back = 'linear-gradient(45deg, ';
   for (let i = 0; i < colors.length; i++) {
+    var box = document.createElement('div');
+    box.classList.add('containerdisp');
+    box.classList.add('col');
+
+    var canvcont = document.createElement('div');
+    canvcont.classList.add('inner');
+
     var canv = document.createElement('canvas');
     canv.classList.add('minidisplay');
-    canv.classList.add('col');
     ctx = canv.getContext('2d');
     canv.width = 200;
     canv.height = 200;
     ctx.fillStyle = colors[i];
+    ctx.fillRect(0, 0, 200, 200);
+
+    canvcont.append(canv);
     back += colors[i];
     if (i + 1 < colors.length) {
       back += ',';
     } else back += ')';
-    ctx.fillRect(0, 0, 200, 200);
-    hub.appendChild(canv);
+
+    box.append(canvcont);
+
+    // info div
+
+    let elem = document.createElement('div');
+    let label = document.createElement('p');
+
+    elem.classList.add('inner');
+
+    label.textContent = RGBToHex(colors[i]);
+    label.classList.add('hexlabel');
+
+    elem.append(label);
+
+    box.append(elem);
+    hub.appendChild(box);
   }
 
   document.body.style.background = back;
@@ -181,9 +206,6 @@ function updatecontainers() {
     holder.appendChild(newdiv);
     // console.log(block.innerHTML);
   }
-
-  // console.log('AFTER');
-  // console.log(block.innerHTML);
 }
 
 function changestate() {
@@ -191,22 +213,52 @@ function changestate() {
   updatecontainers();
 }
 
-function sendcard(e) {
+function getcord(e) {
+  let elem = document.getElementById('quad');
+  let rect = elem.getBoundingClientRect();
+  let x = e.clientX - (rect.left+radius);
+  let y = e.clientY - (rect.top+radius);
+
+  if (isvalid(x,y)) {
+    sendcard(x,y);
+  }
+}
+
+function random() {
+  let x = (Math.random() * 400) - 200;
+  let y = (Math.random() * 400) - 200;
+
+  while (!isvalid(x, y)) {
+    x = (Math.random() * 400) - 200;
+    y = (Math.random() * 400) - 200;
+  }
+
+  sendcard(x, y);
+}
+
+function isvalid(x, y) {
+
+  if (Math.sqrt(x * x + y * y) <= radius) return true;
+  return false;
+
+}
+
+function sendcard(x, y) {
 
   let canv = document.getElementById('quad');
   let rect = canv.getBoundingClientRect();
   let leftbound = rect.left, topbound = rect.top; // border positions.
 
-  let xcomp = e.clientX - (leftbound + radius);
-  let ycomp = e.clientY - (topbound + radius);
+  let xcomp = x;
+  let ycomp = y;
 
   let palettetype = document.getElementById('palettebox').value;
-  let rad = Math.sqrt(xcomp * xcomp + ycomp * ycomp);
 
-  if (rad <= radius) {
+  if (isvalid(x, y)) {
+
 
     let ctx = canv.getContext('2d');
-    let pixel = ctx.getImageData(Math.abs(e.clientX - leftbound), Math.abs(topbound - e.clientY), 1, 1);
+    let pixel = ctx.getImageData(Math.abs(x + 200), Math.abs(y + 200), 1, 1);
 
     let data = pixel.data;
 
@@ -222,17 +274,18 @@ function sendcard(e) {
     colors.push(color);
 
     coord = [];
-    let pair = [(e.clientX - leftbound) / 400 * 100, (e.clientY - topbound) / 400 * 100];
+    let pair = [(x + 200) / 400 * 100, (y + 200) / 400 * 100];
     coord.push(pair);
 
     var p1x, p1y, p2x, p2y, p1, p2, pixel1, pixel2, data1, data2, c1, c2;
 
     switch (palettetype) {
       case 'Complementary':
-        let x = (leftbound + radius) - xcomp;
-        let y = (topbound + radius) - ycomp;
+        let compx = -x;
+        let compy = -y;
 
-        let pixel = ctx.getImageData(Math.abs(x - leftbound), Math.abs(topbound - y), 1, 1);
+
+        let pixel = ctx.getImageData(Math.abs(compx+200), Math.abs(compy+200), 1, 1);
 
         let data = pixel.data;
 
@@ -242,7 +295,7 @@ function sendcard(e) {
         cgreen = data[1];
         cblue = data[2];
 
-        p1 = [(x - leftbound) / 400 * 100, (y - topbound) / 400 * 100];
+        p1 = [(compx + 200) / 400 * 100, (compy + 200) / 400 * 100];
 
         colors.push(complement);
         coord.push(p1);
@@ -309,8 +362,8 @@ function sendcard(e) {
         break;
     }
 
-    lastx = e.clientX;
-    lasty = e.clientY;
+    lastx = x + 200;
+    lasty = y + 200;
 
     updatecontainers();
   } else {
@@ -405,9 +458,21 @@ function updatedisplay(val) {
   var color;
   let canvcont = document.getElementById('testingsite').children;
   let type = document.getElementById('palettebox').value;
+  
+  let text = document.querySelectorAll('.hexlabel');
+
+  for (let i = 0; i < text.length; i++) {
+    let label = text[i];
+    if (val >= 50) {
+      label.style.color = 'white';
+    } else {
+      label.style.color = 'black';
+    }
+  }
+
 
   for (let i = 0; i < colors.length; i++) {
-    let canv = canvcont[i];
+    let canv = canvcont[i].querySelector('.minidisplay');
     let data = colors[i].replace('rgb(', '').replace(')', '').split(',');
 
     let ctx = canv.getContext('2d');
@@ -451,6 +516,7 @@ function updatedisplay(val) {
         break;
     }
 
+    canvcont[i].querySelector('.hexlabel').textContent = RGBToHex(color);
     ctx.fillRect(0, 0, 200, 200);
   }
 }
@@ -467,6 +533,26 @@ function getSortedIndices(data) {
   });
 
   return color;
+}
+
+function RGBToHex(rgb) {
+  // Choose correct separator
+  let sep = rgb.indexOf(",") > -1 ? "," : " ";
+  // Turn "rgb(r,g,b)" into [r,g,b]
+  rgb = rgb.substr(4).split(")")[0].split(sep);
+
+  let r = (+rgb[0]).toString(16),
+    g = (+rgb[1]).toString(16),
+    b = (+rgb[2]).toString(16);
+
+  if (r.length == 1)
+    r = "0" + r;
+  if (g.length == 1)
+    g = "0" + g;
+  if (b.length == 1)
+    b = "0" + b;
+
+  return "#" + r + g + b;
 }
 
 function lighten(val, color) {
@@ -507,3 +593,25 @@ function darken(val, color) {
   return `rgb(${returnarr.join()})`;
 }
 
+function getLinear() {
+  let out = 'linear-gradient(';
+
+  for (let i = 0; i < colors.length-1; i++) {
+    out += colors[i] + ', ';
+  }
+
+  out += colors[colors.length-1] + ')';
+
+  let modalmessage = document.querySelector('.modal-body');
+
+  modalmessage.textContent = out;
+}
+
+function copytoclipboard() {
+  var r = document.createRange();
+  r.selectNode(document.querySelector('.modal-body'));
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(r);
+  document.execCommand('copy');
+  window.getSelection().removeAllRanges();
+}
